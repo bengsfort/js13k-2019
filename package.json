@@ -1,0 +1,46 @@
+{
+  "name": "js13k-2019",
+  "version": "0.0.0",
+  "description": "JS13K Game jam game",
+  "main": "src/index.ts",
+  "repository": "git@github.com:bengsfort/js13k-2019.git",
+  "author": "bengsfort <bengsfort@gmail.com>",
+  "license": "Unlicense",
+  "private": false,
+  "devDependencies": {
+    "husky": "^3.0.3",
+    "lint-staged": "^9.2.1",
+    "prettier": "^1.18.2",
+    "rollup": "^1.19.4",
+    "rollup-plugin-commonjs": "^10.0.2",
+    "rollup-plugin-generate-html-template": "^1.2.0",
+    "rollup-plugin-node-resolve": "^5.2.0",
+    "rollup-plugin-serve": "^1.0.1",
+    "rollup-plugin-typescript": "^1.0.1",
+    "tslint": "^5.18.0",
+    "typescript": "^3.5.3"
+  },
+  "scripts": {
+    "lint-staged": "lint-staged",
+    "lint": "node_modules/.bin/tslint -c tslint.json 'src/**/*.ts'",
+    "format": "node_modules/.bin/prettier --write 'src/**/*.{js,ts,json,md}'",
+    "build": "rollup -c",
+    "start": "rollup -c -w"
+  },
+  "lint-staged": {
+    "src/**/*.{js,ts}": [
+      "prettier --write",
+      "yarn lint",
+      "git add"
+    ],
+    "src/**/*.json": [
+      "prettier --write",
+      "git add"
+    ]
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  }
+}

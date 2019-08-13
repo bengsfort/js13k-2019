@@ -1,0 +1,35 @@
+{
+    "defaultSeverity": "error",
+    "extends": ["tslint:recommended"],
+    "jsRules": {},
+    "rules": {
+      "curly": [true, "ignore-same-line"],
+      "no-console": false,
+      "ordered-imports": {
+        "severity": "off"
+      },
+      "variable-name": {
+        "severity": "warn",
+        "options": ["allow-leading-underscore"]
+      },
+      "trailing-comma": false,
+      "member-access": false,
+      "no-bitwise": false,
+      "arrow-parens": false,
+      "member-ordering": {
+        "severity": "warn",
+        "options": {
+          "order": [
+            "instance-field",
+            "static-field",
+            "constructor",
+            "static-method",
+            "private-instance-method",
+            "protected-instance-method",
+            "public-instance-method"
+          ]
+        }
+      }
+    },
+    "rulesDirectory": []
+  }
