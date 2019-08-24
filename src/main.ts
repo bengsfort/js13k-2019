@@ -14,14 +14,7 @@ const simpleTile = [
   0,2,2,0,0,0,1,0
 ]
 
-const numTiles = 10;
-let map = new Array();
-for (let i = 0; i <= numTiles; i++) {
-  map.push(shuffle(simpleTile));
-}
-console.log(map);
-
-const getIndex = (row: number, column: number) => row * 8 + column;
+const getIndex = (row, column) => row * width + column;
 function shuffle(a) {
   for (let i = a.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
@@ -29,27 +22,34 @@ function shuffle(a) {
   }
   return a;
 }
+
 enum PixelType {
   EMPTY = 0,
   DEEP = 1,
   NEAR = 2,
 }
 
-const drawPixels = (tile, index: number, type: PixelType) => {
-  for (let row = 0; row < 4; row++) {
-    const rowOffset = index === 0 ? 0 : 4 * index;
-    // simpleTile rows
-    for (let col = 0; col < 8; col++) {
-      // simpleTile cols
+function generateMap() {
+  const map = [];
+  for (let i = 0; i < width * height; i++) {
+    // randomly generate tile type
+    map.push(Math.floor(Math.random() * 3));
+  }
+  return map;
+}
+
+const map = generateMap();
+const drawPixel = type => {
+  for (let row = 0; row < height; row++) {
+    for (let col = 0; col < width; col++) {
       const idx = getIndex(row, col);
-      if (tile[idx] !== type) {
+      if (map[idx] !== type) {
         continue;
       }
-      const colOffset = index === 0 ? 0 : 8 * index;
-      console.log("ROWOFFSET in draw: ", rowOffset);
+
       context.fillRect(
-        col * (PIXEL_SIZE + colOffset),
-        row * (PIXEL_SIZE + rowOffset),
+        col * PIXEL_SIZE,
+        row * PIXEL_SIZE,
         PIXEL_SIZE,
         PIXEL_SIZE
       );
@@ -106,16 +106,12 @@ function updateSquareBoy() {
 
 function drawSpace() {
   context.clearRect(0, 0, width, height);
-  // NOT GREAT CHANGING FILL STYLE SO OFTEN
-  // Maybe put everything in drawPixels?
-  map.forEach((tile, index) => {
-    context.fillStyle = "#2F3939";
-    drawPixels(shuffle(tile), index, PixelType.EMPTY);
-    context.fillStyle = "#182141";
-    drawPixels(shuffle(tile), index, PixelType.DEEP);
-    context.fillStyle = "#1E2852";
-    drawPixels(shuffle(tile), index, PixelType.NEAR);
-  });
+  context.fillStyle = "#2F3939";
+  drawPixel(PixelType.EMPTY);
+  context.fillStyle = "#182141";
+  drawPixel(PixelType.DEEP);
+  context.fillStyle = "#1E2852";
+  drawPixel(PixelType.NEAR);
 }
 
 function drawPlanet() {
