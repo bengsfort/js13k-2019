@@ -8,36 +8,72 @@ const PIXEL_SIZE = 10;
 // prettier-ignore
 // tslint-ignore
 const simpleTile = [
-  0,0,0,0,1,1,1,1,
-  0,2,2,0,0,1,1,0,
-  0,2,2,0,0,1,1,0,
+  0,0,0,0,1,1,0,1,
+  0,0,2,2,0,1,1,0,
+  0,2,1,0,0,2,1,0,
   0,2,2,0,0,0,1,0
 ]
 
-const getIndex = (row: number, column: number) => row * 8 + column;
+const numTiles = 10;
+let map = new Array();
+for (let i = 0; i <= numTiles; i++) {
+  map.push(shuffle(simpleTile));
+}
+console.log(map);
 
+const getIndex = (row: number, column: number) => row * 8 + column;
+function shuffle(a) {
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
 enum PixelType {
-  GRASS = 0,
-  WATER = 1,
-  DIRT = 2,
+  EMPTY = 0,
+  DEEP = 1,
+  NEAR = 2,
 }
 
-const drawPixels = (type: PixelType) => {
+const drawPixels = (tile, index: number, type: PixelType) => {
   for (let row = 0; row < 4; row++) {
+    const rowOffset = index === 0 ? 0 : 4 * index;
     // simpleTile rows
     for (let col = 0; col < 8; col++) {
       // simpleTile cols
       const idx = getIndex(row, col);
-      if (simpleTile[idx] !== type) {
+      if (tile[idx] !== type) {
         continue;
       }
-
+      const colOffset = index === 0 ? 0 : 8 * index;
+      console.log("ROWOFFSET in draw: ", rowOffset);
       context.fillRect(
-        col * PIXEL_SIZE,
-        row * PIXEL_SIZE,
+        col * (PIXEL_SIZE + colOffset),
+        row * (PIXEL_SIZE + rowOffset),
         PIXEL_SIZE,
         PIXEL_SIZE
       );
+    }
+  }
+};
+
+const drawSatellite = () => {
+  context.fillStyle = "grey";
+  for (let i = 0; i < 10; i++) {
+    for (let row = 0; row < 4; row++) {
+      const rowOffset = i === 0 ? 0 : 4 * i;
+      // simpleTile rows
+      for (let col = 0; col < 6; col++) {
+        const colOffset = i === 0 ? 0 : 6 * i;
+        //console.log(colOffset, rowOffset, index);
+        // (row + rowOffset - col) * PIXEL_SIZE, cool 3d effect maybe use for space-ship animation
+        context.fillRect(
+          (col + colOffset) * PIXEL_SIZE,
+          (row + rowOffset - col) * PIXEL_SIZE,
+          PIXEL_SIZE,
+          PIXEL_SIZE
+        );
+      }
     }
   }
 };
@@ -68,27 +104,45 @@ function updateSquareBoy() {
   if (isPressed.up) pos.y -= speed;
 }
 
-function drawSquareBoy() {
+function drawSpace() {
   context.clearRect(0, 0, width, height);
-  context.fillStyle = "green";
-  drawPixels(PixelType.GRASS);
-  context.fillStyle = "blue";
-  drawPixels(PixelType.WATER);
-  context.fillStyle = "brown";
-  drawPixels(PixelType.DIRT);
-  // render dat boy
-  // context.fillStyle = "green";
-  // context.fillRect(pos.x, pos.y, 64, 64);
+  // NOT GREAT CHANGING FILL STYLE SO OFTEN
+  // Maybe put everything in drawPixels?
+  map.forEach((tile, index) => {
+    context.fillStyle = "#2F3939";
+    drawPixels(shuffle(tile), index, PixelType.EMPTY);
+    context.fillStyle = "#182141";
+    drawPixels(shuffle(tile), index, PixelType.DEEP);
+    context.fillStyle = "#1E2852";
+    drawPixels(shuffle(tile), index, PixelType.NEAR);
+  });
 }
 
+function drawPlanet() {
+  context.fillStyle = "#ffe884";
+  context.arc(width / 4, height, 240, Math.PI, 0);
+  context.fill();
+}
+drawSpace();
+drawPlanet();
+drawSatellite();
+
+// let travelling = true;
+// setTimeout(() => { travelling = false;
+//   drawPlanet();
+// }, 2000);
+
+// go
 (function main() {
   animFrame = window.requestAnimationFrame(main);
   const now = performance.now();
   const elapsed = now - prevFrame;
+  // if (travelling) {
+  //   drawSpace();
+  // }
 
   if (elapsed >= FPS) {
     updateSquareBoy();
-    drawSquareBoy();
     prevFrame = now;
   }
 
